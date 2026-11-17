@@ -26,6 +26,8 @@ export default function DashboardScreen() {
   }
   const {
     tasks,
+    isLoading,
+    loadError,
     toggleTask,
     addTask,
     totalCount,
@@ -338,7 +340,17 @@ export default function DashboardScreen() {
         </div>
 
         {/* 할 일 카드 리스트 */}
-        {filteredTasks.length === 0 ? (
+        {/* 불러오는 중 / 불러오기 실패 / 할 일이 하나도 없음 */}
+        {isLoading && (
+          <p className="py-10 text-center text-sm text-[#868E96]">불러오는 중…</p>
+        )}
+        {!isLoading && loadError && (
+          <p className="py-10 text-center text-sm text-[#FA5252]">{loadError}</p>
+        )}
+        {!isLoading && !loadError && tasks.length === 0 && (
+          <p className="py-10 text-center text-sm text-[#868E96]">할 일이 없습니다. + 버튼으로 추가해 보세요</p>
+        )}
+        {!isLoading && tasks.length > 0 && filteredTasks.length === 0 && (
           <div className="h-44 flex flex-col items-center justify-center text-center p-6 bg-white dark:bg-[#1E2125] rounded-2xl border border-dashed border-[#E9ECEF] dark:border-[#2C3036]">
             <div className="w-10 h-10 rounded-full bg-[#F8F9FA] dark:bg-[#121417] flex items-center justify-center text-[#868E96] mb-2">
               <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
@@ -350,11 +362,11 @@ export default function DashboardScreen() {
             <p className="text-sm font-medium text-[#495057] dark:text-[#ADB5BD]">해당하는 할 일이 없습니다</p>
             <p className="text-xs text-[#868E96] mt-0.5">우측 하단 (+) 버튼을 눌러 새 할 일을 등록해보세요</p>
           </div>
-        ) : (
+        )}
+        {!isLoading &&
           filteredTasks.map((task) => (
             <TaskCard key={task.id} task={task} onToggle={toggleTask} />
-          ))
-        )}
+          ))}
       </main>
 
       {/* 4. 최하단 고정 플로팅 액션 버튼 (FAB +) */}

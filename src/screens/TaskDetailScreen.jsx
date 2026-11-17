@@ -15,7 +15,8 @@ export default function TaskDetailScreen() {
   const navigate = useNavigate();
   const { tasks } = useTasks();
 
-  const taskId = Number(id);
+  // Supabase의 id는 uuid 문자열이라 숫자로 바꾸지 않고 그대로 비교한다
+  const taskId = id;
   const task = tasks.find((t) => t.id === taskId);
 
   if (!task) {

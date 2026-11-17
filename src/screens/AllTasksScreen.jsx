@@ -15,6 +15,8 @@ export default function AllTasksScreen() {
   const navigate = useNavigate();
   const {
     tasks,
+    isLoading,
+    loadError,
     toggleTask,
     addTask,
     totalCount,
@@ -229,16 +231,26 @@ export default function AllTasksScreen() {
 
       {/* 3. 태스크 리스트 메인 스크롤 영역 */}
       <main className="flex-1 overflow-y-auto px-5 py-3.5 space-y-3 pb-24 no-scrollbar">
-        {filteredTasks.length === 0 ? (
+        {/* 불러오는 중 / 불러오기 실패 / 할 일이 하나도 없음 */}
+        {isLoading && (
+          <p className="py-10 text-center text-sm text-[#868E96]">불러오는 중…</p>
+        )}
+        {!isLoading && loadError && (
+          <p className="py-10 text-center text-sm text-[#FA5252]">{loadError}</p>
+        )}
+        {!isLoading && !loadError && tasks.length === 0 && (
+          <p className="py-10 text-center text-sm text-[#868E96]">할 일이 없습니다. + 버튼으로 추가해 보세요</p>
+        )}
+        {!isLoading && tasks.length > 0 && filteredTasks.length === 0 && (
           <div className="h-44 flex flex-col items-center justify-center text-center p-6 bg-white dark:bg-[#1E2125] rounded-2xl border border-dashed border-[#E9ECEF] dark:border-[#2C3036]">
             <p className="text-sm font-medium text-[#495057] dark:text-[#ADB5BD]">조건에 맞는 할 일이 없습니다</p>
             <p className="text-xs text-[#868E96] mt-1">필터를 변경하거나 새 할 일을 추가해보세요</p>
           </div>
-        ) : (
+        )}
+        {!isLoading &&
           filteredTasks.map((task) => (
             <TaskCard key={task.id} task={task} onToggle={toggleTask} />
-          ))
-        )}
+          ))}
       </main>
 
       {/* 4. 플로팅 액션 버튼 (FAB +) */}
