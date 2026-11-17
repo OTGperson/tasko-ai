@@ -1,24 +1,36 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { useAuth, toKoreanAuthError } from "../context/useAuth.js";
 
 /**
  * Tasko 모바일 로그인 화면
  * - 앱 첫 화면으로 사용됩니다.
- * - 버튼 클릭 시 대시보드(/dashboard)로 이동합니다.
+ * - Supabase 이메일·비밀번호 로그인에 성공하면 대시보드(/dashboard)로 이동합니다.
  */
 export default function LoginScreen() {
   const navigate = useNavigate();
-  const [email, setEmail] = useState("demo@tasko.app");
-  const [password, setPassword] = useState("••••••••");
+  const { signIn } = useAuth();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
+  const [submitting, setSubmitting] = useState(false);
 
-  const handleSubmit = (e) => {
+  // 로그인 요청: 성공하면 대시보드로, 실패하면 한국어 에러를 화면에 보여 준다
+  async function handleSubmit(e) {
     e.preventDefault();
-    // 목업 로그인: 대시보드로 이동
+    setErrorMessage("");
+    setSubmitting(true);
+    const result = await signIn(email, password);
+    setSubmitting(false);
+    if (result.error) {
+      setErrorMessage(toKoreanAuthError(result.error));
+      return;
+    }
     navigate("/dashboard");
-  };
+  }
 
   return (
-    <div className="w-full h-full bg-[#F8F9FA] flex flex-col justify-between select-none">
+    <div className="w-full h-full bg-[#F8F9FA] dark:bg-[#121417] flex flex-col justify-between select-none">
       {/* 상단 헤더: 앱 상태 및 연결 상태 */}
       <header className="w-full pt-4 px-6 flex justify-between items-center z-10 shrink-0">
         <div className="text-xs font-semibold text-[#868E96] tracking-tight">
@@ -49,11 +61,11 @@ export default function LoginScreen() {
                 ></path>
               </svg>
             </div>
-            <span className="text-3xl font-extrabold text-[#212529] tracking-tight">
+            <span className="text-3xl font-extrabold text-[#212529] dark:text-[#F1F3F5] tracking-tight">
               할 일 관리(Tasko)
             </span>
           </div>
-          <p className="text-sm font-medium text-[#495057]">
+          <p className="text-sm font-medium text-[#495057] dark:text-[#ADB5BD]">
             오늘 할 일을 이어서 관리해 보세요
           </p>
         </div>
@@ -64,7 +76,7 @@ export default function LoginScreen() {
           <div className="space-y-1.5">
             <label
               htmlFor="loginEmail"
-              className="block text-xs font-semibold text-[#495057]"
+              className="block text-xs font-semibold text-[#495057] dark:text-[#ADB5BD]"
             >
               이메일
             </label>
@@ -75,7 +87,7 @@ export default function LoginScreen() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="example@tasko.app"
-              className="w-full h-12 px-4 bg-white border border-[#E9ECEF] rounded-xl text-sm text-[#212529] font-normal placeholder-[#868E96] focus:outline-none focus:border-[#1EA65C] focus:ring-2 focus:ring-[#1EA65C]/15 transition-all"
+              className="w-full h-12 px-4 bg-white dark:bg-[#1E2125] border border-[#E9ECEF] dark:border-[#2C3036] rounded-xl text-sm text-[#212529] dark:text-[#F1F3F5] font-normal placeholder-[#868E96] focus:outline-none focus:border-[#1EA65C] focus:ring-2 focus:ring-[#1EA65C]/15 transition-all"
             />
           </div>
 
@@ -83,7 +95,7 @@ export default function LoginScreen() {
           <div className="space-y-1.5">
             <label
               htmlFor="loginPassword"
-              className="block text-xs font-semibold text-[#495057]"
+              className="block text-xs font-semibold text-[#495057] dark:text-[#ADB5BD]"
             >
               비밀번호
             </label>
@@ -94,15 +106,23 @@ export default function LoginScreen() {
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="비밀번호를 입력하세요"
-              className="w-full h-12 px-4 bg-white border border-[#E9ECEF] rounded-xl text-sm text-[#212529] font-normal placeholder-[#868E96] focus:outline-none focus:border-[#1EA65C] focus:ring-2 focus:ring-[#1EA65C]/15 transition-all"
+              className="w-full h-12 px-4 bg-white dark:bg-[#1E2125] border border-[#E9ECEF] dark:border-[#2C3036] rounded-xl text-sm text-[#212529] dark:text-[#F1F3F5] font-normal placeholder-[#868E96] focus:outline-none focus:border-[#1EA65C] focus:ring-2 focus:ring-[#1EA65C]/15 transition-all"
             />
           </div>
+
+          {/* 에러 안내 문구 */}
+          {errorMessage !== "" && (
+            <p role="alert" className="text-xs font-medium text-[#FA5252]">
+              {errorMessage}
+            </p>
+          )}
 
           {/* 로그인 버튼: 에메랄드 그린 풀사이즈 버튼 */}
           <div className="pt-2">
             <button
               type="submit"
-              className="w-full h-12 bg-[#1EA65C] hover:bg-[#178449] active:scale-[0.98] text-white text-base font-semibold rounded-xl shadow-md shadow-[#1EA65C]/25 transition-all duration-150 flex items-center justify-center cursor-pointer"
+              disabled={submitting}
+              className="w-full h-12 bg-[#1EA65C] hover:bg-[#178449] active:scale-[0.98] disabled:opacity-60 text-white text-base font-semibold rounded-xl shadow-md shadow-[#1EA65C]/25 transition-all duration-150 flex items-center justify-center cursor-pointer"
             >
               로그인
             </button>
@@ -112,7 +132,7 @@ export default function LoginScreen() {
 
       {/* 하단 회원가입 전환 링크 */}
       <footer className="w-full pb-8 px-6 text-center shrink-0">
-        <div className="text-sm text-[#495057]">
+        <div className="text-sm text-[#495057] dark:text-[#ADB5BD]">
           계정이 없으신가요?{" "}
           <Link
             to="/signup"

@@ -1,5 +1,13 @@
 @import "tailwindcss";
 
+/* 다크 모드: <html class="dark"> 일 때 dark: 접두사가 동작하게 한다 */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* 다크 모드에서는 입력창·선택 목록 같은 기본 부품도 어둡게 그린다 */
+html.dark {
+  color-scheme: dark;
+}
+
 @theme {
   --font-sans: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, sans-serif;
   --color-tasko-primary: #1EA65C;
